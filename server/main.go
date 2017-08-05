@@ -11,16 +11,31 @@ import (
 	"time"
 )
 
+type Config struct {
+	Meters []Meter `yaml:"meters"`
+	Limits []Limit `yaml:"limits"`
+}
+
+type Meter struct {
+	Name   string `yaml:"name"`
+	Type   string `yaml:"type"`
+	PhysID string `yaml:"physid"`
+}
+
+type Limit struct {
+	Min  float64 `yaml:"min"`
+	Max  float64 `yaml:"max"`
+	Type string  `yaml:"type"`
+}
+
 type Temps struct {
-	Date time.Time
-	C1   float64
-	C2   float64
-	C3   float64
-	C4   float64
-	C5   float64
-	C6   float64
-	C7   float64
-	C8   float64
+	Time  time.Time
+	Temps []Temp
+}
+
+type Temp struct {
+	Meter *meter
+	Temp  float64
 }
 
 var (
