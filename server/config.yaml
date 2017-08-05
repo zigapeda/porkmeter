@@ -1,0 +1,8 @@
+meters:
+  - name: Garraum 1
+    type: garraum
+    physid: C1
+  - name: Fleisch 1
+    type: fleisch
+    physid: C2
+limits:

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Braten</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  <link rel = "stylesheet" type = "text/css" href = "bratenthermometer.css" />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <script>
+        $(document).ready(function hi(){
+            $.get("/api/GetTemps", function(data){
+                console.log(data);
+                $("#temp1").html(data.success.c1);
+                $("#temp2").html(data.success.c2);
+                $("#temp3").html(data.success.c3);
+                $("#temp4").html(data.success.c4);
+                $("#temp5").html(data.success.c5);
+                $("#temp6").html(data.success.c6);
+                $("#temp7").html(data.success.c7);
+                $("#temp8").html(data.success.c8);
+            });
+        });
+    </script>
+</head>
+<body>
+
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand">Bratenthermometer</a>
+    </div>
+  </div>
+</nav>
+
+<div id="card" class="card">
+  <div class="containerHeight" style="width:100%; margin-top:2%">
+    <div class="col-sm-3"><div id="temp1" class="tempSection"></div></div>
+    <div class="col-sm-3"><div id="temp2" class="tempSection"></div></div>
+    <div class="col-sm-3"><div id="temp3" class="tempSection"></div></div>
+    <div class="col-sm-3"><div id="temp4" class="tempSection marginRight"></div></div>
+  </div>
+  <div class="secondContainer">
+    <div class="col-sm-3"><div id="temp5" class="tempSection"></div></div>
+    <div class="col-sm-3"><div id="temp6" class="tempSection"></div></div>
+    <div class="col-sm-3"><div id="temp7" class="tempSection"></div></div>
+    <div class="col-sm-3"><div id="temp8" class="tempSection marginRight"></div></div>
+  </div>
+</div>
+
+</body>
+</html>
