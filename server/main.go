@@ -2,7 +2,6 @@
 package main
 
 import (
-	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -12,15 +11,19 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-yaml/yaml"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/go-yaml/yaml"
+	"github.com/unrolled/render"
+	"github.com/zigapeda/porkmeter/server/db"
 )
 
 var configfile *string = flag.String("conf", "config.yaml", "sets the config file used")
 
 type Config struct {
-	Meters []*Meter `yaml:"meters"`
-	Limits []Limit `yaml:"limits"`
+	Meters     []*Meter    `yaml:"meters"`
+	Limits     []Limit     `yaml:"limits"`
+	PushAPIKey string      `yaml:"pushapikey"`
+	DB         db.DbConfig `yaml:"dbconfig"`
 }
 
 type Meter struct {
@@ -48,21 +51,22 @@ type Temp struct {
 var (
 	temps  []Temps
 	config Config
+	rend   = render.New()
 )
 
-func setTemps(vals url.Values) (string, error) {
+func setTemps(vals url.Values) error {
 	t := make([]Temp, 0, 5)
 	var err error
 	for _, element := range config.Meters {
 		var tv float64
 		if tv, err = strconv.ParseFloat(vals.Get(element.PhysID), 64); err != nil {
-			return "", err
+			return err
 		}
 		t = append(t, Temp{Meter: element, Temp: tv})
 	}
 	ts := Temps{Time: time.Now(), Temps: t}
 	temps = append(temps, ts)
-	return "ok", nil
+	return nil
 }
 
 func getTemps() (Temps, error) {
@@ -72,34 +76,21 @@ func getTemps() (Temps, error) {
 	return Temps{}, errors.New("no temperatures")
 }
 
-func executeUrl(reqUrl *url.URL) (interface{}, error) {
-	switch reqUrl.Path[5:] {
-	case "GetTemps":
-		return getTemps()
-	case "SetTemps":
-		return setTemps(reqUrl.Query())
+func apiGetTemps(w http.ResponseWriter, r *http.Request) {
+	temps, err := getTemps()
+	if err != nil {
+		rend.JSON(w, 200, map[string]interface{}{"success": nil, "error": err.Error()})
+	} else {
+		rend.JSON(w, 200, map[string]interface{}{"success": temps, "error": nil})
 	}
-	return nil, errors.New("api not found")
 }
 
-func apiHandler(w http.ResponseWriter, r *http.Request) {
-	success, err := executeUrl(r.URL)
+func apiSetTemps(w http.ResponseWriter, r *http.Request) {
+	err := setTemps(r.URL.Query())
 	if err != nil {
-		jsonString, err := json.Marshal(map[string]interface{}{"success": nil, "error": err.Error()})
-		if err != nil {
-			fmt.Println(1, err)
-		} else {
-			w.Header().Set("Content-Type", "application/json; charset=utf-8")
-			w.Write(jsonString)
-		}
+		rend.JSON(w, 200, map[string]interface{}{"success": "", "error": err.Error()})
 	} else {
-		jsonString, err := json.Marshal(map[string]interface{}{"success": success, "error": nil})
-		if err != nil {
-			fmt.Println(2, err)
-		} else {
-			w.Header().Set("Content-Type", "application/json; charset=utf-8")
-			w.Write(jsonString)
-		}
+		rend.JSON(w, 200, map[string]interface{}{"success": "ok", "error": nil})
 	}
 }
 
@@ -122,7 +113,8 @@ func main() {
 
 	http.Handle("/", http.FileServer(http.Dir("html")))
 
-	http.HandleFunc("/api/", apiHandler)
+	http.HandleFunc("/api/GetTemps", apiGetTemps)
+	http.HandleFunc("/api/SetTemps", apiSetTemps)
 
 	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
