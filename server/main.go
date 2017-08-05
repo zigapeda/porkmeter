@@ -34,42 +34,27 @@ type Temps struct {
 }
 
 type Temp struct {
-	Meter *meter
+	Meter *Meter
 	Temp  float64
 }
 
 var (
-	temps []Temps
+	temps  []Temps
+	config Config
 )
 
 func setTemps(vals url.Values) error {
-	t := Temps{Date: time.Now()}
+	t := make([]Temp, 0, 5)
 	var err error
-	if t.C1, err = strconv.ParseFloat(vals.Get("C1"), 64); err != nil {
-		return err
+	for _, element := range config.Meters {
+		var tv float64
+		if tv, err = strconv.ParseFloat(vals.Get(element.PhysID), 64); err != nil {
+			return err
+		}
+		t = append(t, Temp{Meter: &element, Temp: tv})
 	}
-	if t.C2, err = strconv.ParseFloat(vals.Get("C2"), 64); err != nil {
-		return err
-	}
-	if t.C3, err = strconv.ParseFloat(vals.Get("C3"), 64); err != nil {
-		return err
-	}
-	if t.C4, err = strconv.ParseFloat(vals.Get("C4"), 64); err != nil {
-		return err
-	}
-	if t.C5, err = strconv.ParseFloat(vals.Get("C5"), 64); err != nil {
-		return err
-	}
-	if t.C6, err = strconv.ParseFloat(vals.Get("C6"), 64); err != nil {
-		return err
-	}
-	if t.C7, err = strconv.ParseFloat(vals.Get("C7"), 64); err != nil {
-		return err
-	}
-	if t.C8, err = strconv.ParseFloat(vals.Get("C8"), 64); err != nil {
-		return err
-	}
-	temps = append(temps, t)
+	ts := Temps{Time: time.Now(), Temps: t}
+	temps = append(temps, ts)
 	return nil
 }
 
