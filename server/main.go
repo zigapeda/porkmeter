@@ -13,12 +13,13 @@ import (
 	"time"
 
 	"github.com/go-yaml/yaml"
+	"github.com/davecgh/go-spew/spew"
 )
 
 var configfile *string = flag.String("conf", "config.yaml", "sets the config file used")
 
 type Config struct {
-	Meters []Meter `yaml:"meters"`
+	Meters []*Meter `yaml:"meters"`
 	Limits []Limit `yaml:"limits"`
 }
 
@@ -49,19 +50,19 @@ var (
 	config Config
 )
 
-func setTemps(vals url.Values) error {
+func setTemps(vals url.Values) (string, error) {
 	t := make([]Temp, 0, 5)
 	var err error
 	for _, element := range config.Meters {
 		var tv float64
 		if tv, err = strconv.ParseFloat(vals.Get(element.PhysID), 64); err != nil {
-			return err
+			return "", err
 		}
-		t = append(t, Temp{Meter: &element, Temp: tv})
+		t = append(t, Temp{Meter: element, Temp: tv})
 	}
 	ts := Temps{Time: time.Now(), Temps: t}
 	temps = append(temps, ts)
-	return nil
+	return "ok", nil
 }
 
 func getTemps() (Temps, error) {
@@ -76,8 +77,7 @@ func executeUrl(reqUrl *url.URL) (interface{}, error) {
 	case "GetTemps":
 		return getTemps()
 	case "SetTemps":
-		setTemps(reqUrl.Query())
-		return "ok", nil
+		return setTemps(reqUrl.Query())
 	}
 	return nil, errors.New("api not found")
 }
@@ -115,6 +115,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	spew.Dump(config)
 	temps = make([]Temps, 0, 100)
 	//	temps = append(temps, Temps{Date: time.Now(), C1: 11.1, C2: 11.2, C3: 11.3, C4: 11.4, C5: 11.5, C6: 11.6, C7: 11.7, C8: 11.8})
 	//	temps = append(temps, Temps{Date: time.Now(), C1: 12.1, C2: 12.2, C3: 12.3, C4: 12.4, C5: 12.5, C6: 12.6, C7: 12.7, C8: 12.8})
