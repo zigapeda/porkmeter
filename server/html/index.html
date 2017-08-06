@@ -1,64 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <title>Braten</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <head>
+    <title>Braten</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="bratenthermometer.css" />
+    
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="bratenthermometer.js"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand">Bratenthermometer</a>
+        </div>
+      </div>
+    </nav>
 
-  <link rel = "stylesheet" type = "text/css" href = "bratenthermometer.css" />
+    <div class="section">Smokertemperatur</div>
+    <div id="smokerCards" style="width:95%; margin-left:auto; margin-right:auto"></div>
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
-  <script>
-    function progress(data){
-      //console.log(data);
-      $("#fleischCards").html("");
-      $("#smokerCards").html("");
-      for(var i in data.success.Temps) {
-        var t = data.success.Temps[i];
-        if(t.Meter.Type == "fleisch") {
-          if(t.Temp >= "95") {
-            $("#fleischCards").append("<div class='col-sm-2'><div class='tempcard tempgreencard'>"+t.Temp+" °C</div></div>");                       
-          } else {
-            $("#fleischCards").append("<div class='col-sm-2'><div class='tempcard'>"+t.Temp+" °C</div></div>");                       
-          }
-        } else {
-          if(t.Temp <= "100" || t.Temp > "130") {
-            $("#smokerCards").append("<div class='col-sm-2'><div class='tempcard tempredcard'>"+t.Temp+" °C</div></div>");
-          } else {
-            $("#smokerCards").append("<div class='col-sm-2'><div class='tempcard'>"+t.Temp+" °C</div></div>");
-          }
-        }
-      }
-    }
-    function getData() {
-      $.get("/api/GetTemps", progress);
-    }
-    $(document).ready(function (){
-      getData();
-      setInterval(getData, 1000);
-    });
-  </script>
-</head>
-<body>
-
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand">Bratenthermometer</a>
-    </div>
-  </div>
-</nav>
-
-<div class="section">Smokertemperatur</div>
-<div id="smokerCards" style="width:95%; margin-left:auto; margin-right:auto"></div>
-
-<div class="section">Fleischtemperatur</div>
-<div id="fleischCards" style="width:95%; margin-left:auto; margin-right:auto"></div>
-</body>
+    <div class="section">Fleischtemperatur</div>
+    <div id="fleischCards" style="width:95%; margin-left:auto; margin-right:auto"></div>
+  </body>
 </html>
