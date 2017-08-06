@@ -14,6 +14,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/go-yaml/yaml"
 	"github.com/unrolled/render"
+	"github.com/zigapeda/porkmeter/server/cm"
 	"github.com/zigapeda/porkmeter/server/db"
 )
 
@@ -52,6 +53,8 @@ var (
 	temps  []Temps
 	config Config
 	rend   = render.New()
+	pcms   *cm.CM
+	pkeys  []string
 )
 
 func setTemps(vals url.Values) error {
@@ -66,6 +69,21 @@ func setTemps(vals url.Values) error {
 	}
 	ts := Temps{Time: time.Now(), Temps: t}
 	temps = append(temps, ts)
+	if len(pkeys) > 0 && pcms != nil {
+		pcms.Send(map[string]string{
+			"msg": "Hello World1",
+			"sum": "Happy Day",
+		}, pkeys)
+	}
+	return nil
+}
+
+func registerKey(vals url.Values) error {
+	key := vals.Get("key")
+	if key == "" {
+		return errors.New("no key")
+	}
+	pkeys = append(pkeys, key)
 	return nil
 }
 
@@ -88,7 +106,16 @@ func apiGetTemps(w http.ResponseWriter, r *http.Request) {
 func apiSetTemps(w http.ResponseWriter, r *http.Request) {
 	err := setTemps(r.URL.Query())
 	if err != nil {
-		rend.JSON(w, 200, map[string]interface{}{"success": "", "error": err.Error()})
+		rend.JSON(w, 200, map[string]interface{}{"success": nil, "error": err.Error()})
+	} else {
+		rend.JSON(w, 200, map[string]interface{}{"success": "ok", "error": nil})
+	}
+}
+
+func apiRegisterKey(w http.ResponseWriter, r *http.Request) {
+	err := registerKey(r.URL.Query())
+	if err != nil {
+		rend.JSON(w, 200, map[string]interface{}{"success": nil, "error": err.Error()})
 	} else {
 		rend.JSON(w, 200, map[string]interface{}{"success": "ok", "error": nil})
 	}
@@ -107,6 +134,14 @@ func main() {
 		panic(err)
 	}
 	spew.Dump(config)
+
+	if len(config.PushAPIKey) > 0 {
+		pushnotificationserver := cm.NewCM(config.PushAPIKey)
+		pcms = &pushnotificationserver
+	} else {
+		pcms = nil
+	}
+
 	temps = make([]Temps, 0, 100)
 	//	temps = append(temps, Temps{Date: time.Now(), C1: 11.1, C2: 11.2, C3: 11.3, C4: 11.4, C5: 11.5, C6: 11.6, C7: 11.7, C8: 11.8})
 	//	temps = append(temps, Temps{Date: time.Now(), C1: 12.1, C2: 12.2, C3: 12.3, C4: 12.4, C5: 12.5, C6: 12.6, C7: 12.7, C8: 12.8})
@@ -115,8 +150,9 @@ func main() {
 
 	http.HandleFunc("/api/GetTemps", apiGetTemps)
 	http.HandleFunc("/api/SetTemps", apiSetTemps)
+	http.HandleFunc("/api/RegisterKey", apiRegisterKey)
 
-	err = http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe("127.0.0.1:8080", nil)
 	if err != nil {
 		fmt.Println(err)
 	}
