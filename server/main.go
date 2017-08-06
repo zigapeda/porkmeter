@@ -23,7 +23,7 @@ type Config struct {
 	Meters     []*Meter    `yaml:"meters"`
 	Limits     []Limit     `yaml:"limits"`
 	PushAPIKey string      `yaml:"pushapikey"`
-	DB         db.DbConfig `yaml:"dbconfig"`
+	DB         db.Dbconfig `yaml:"dbconfig"`
 }
 
 type Meter struct {
