@@ -68,8 +68,10 @@ func setTemps(vals url.Values) error {
 		t = append(t, Temp{Meter: element, Temp: tv})
 	}
 	ts := Temps{Time: time.Now(), Temps: t}
+	fmt.Println("set temps")
 	temps = append(temps, ts)
 	if len(pkeys) > 0 && pcms != nil {
+		fmt.Println("send notification to", pkeys)
 		pcms.Send(map[string]string{
 			"msg": "Hello World1",
 			"sum": "Happy Day",
@@ -81,10 +83,32 @@ func setTemps(vals url.Values) error {
 func registerKey(vals url.Values) error {
 	key := vals.Get("key")
 	if key == "" {
-		return errors.New("no key")
+		return errors.New("no key parameter")
 	}
+	fmt.Println("register Key", key)
+	for _, pkey := range pkeys {
+		if pkey == key {
+			fmt.Println("Key already registered")
+			return errors.New("key already registered")
+		}
+    }
 	pkeys = append(pkeys, key)
 	return nil
+}
+
+func removeKey(vals url.Values) error {
+	key := vals.Get("key")
+	if key == "" {
+		return errors.New("no key parameter")
+	}
+	fmt.Println("remove Key", key)
+	for i, pkey := range pkeys {
+		if pkey == key {
+			pkeys = append(pkeys[:i], pkeys[i+1:]...)
+			return nil
+		}
+    }
+	return errors.New("key not found")
 }
 
 func getTemps() (Temps, error) {
@@ -114,6 +138,15 @@ func apiSetTemps(w http.ResponseWriter, r *http.Request) {
 
 func apiRegisterKey(w http.ResponseWriter, r *http.Request) {
 	err := registerKey(r.URL.Query())
+	if err != nil {
+		rend.JSON(w, 200, map[string]interface{}{"success": nil, "error": err.Error()})
+	} else {
+		rend.JSON(w, 200, map[string]interface{}{"success": "ok", "error": nil})
+	}
+}
+
+func apiRemoveKey(w http.ResponseWriter, r *http.Request) {
+	err := removeKey(r.URL.Query())
 	if err != nil {
 		rend.JSON(w, 200, map[string]interface{}{"success": nil, "error": err.Error()})
 	} else {
@@ -151,6 +184,7 @@ func main() {
 	http.HandleFunc("/api/GetTemps", apiGetTemps)
 	http.HandleFunc("/api/SetTemps", apiSetTemps)
 	http.HandleFunc("/api/RegisterKey", apiRegisterKey)
+	http.HandleFunc("/api/RemoveKey", apiRemoveKey)
 
 	err = http.ListenAndServe("127.0.0.1:8080", nil)
 	if err != nil {
