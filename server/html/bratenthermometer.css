@@ -6,11 +6,11 @@
     box-shadow: 0px 3px 4px 0 rgba(0,0,0,0.3);
 }
 
-.navbar-default .navbar-brand {
-    color: white;
-    cursor:default;
+.nav-margin {
+    margin-right: 0px;
 }
 
+.navbar-default .navbar-brand,
 .navbar-default .navbar-brand:hover,
 .navbar-default .navbar-brand:focus {
     color: white;

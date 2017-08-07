@@ -5,7 +5,7 @@ self.addEventListener('push', function(event) {
     const title = 'Porkmeter';
     const options = {
         body: 'Temperaturen prüfen!',
-        icon: 'images/icon.png',
+        icon: 'icon192.png',
         badge: 'images/badge.png'
     };
 
@@ -18,6 +18,6 @@ self.addEventListener('notificationclick', function(event) {
     event.notification.close();
 
     event.waitUntil(
-        clients.openWindow(event.notification.data.url)
+        clients.openWindow("https://porkmeter.maplpapl.de");
     );
 });

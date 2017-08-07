@@ -3,9 +3,9 @@
   "name": "Porkmeter",
   "icons": [
     {
-      "src": "thermometer.png",
+      "src": "icon192.png",
       "type": "image/png",
-      "sizes": "256x256"
+      "sizes": "192x192"
     }
   ],
   "start_url": "index.html",
