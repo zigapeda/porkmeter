@@ -31,3 +31,4 @@ debug
 
 .vscode
 server/server
+server/deploy.sh
