@@ -1,6 +1,7 @@
 package cm
 
 import (
+	"fmt"
     "github.com/NaySoftware/go-fcm"
 )
 
@@ -12,13 +13,15 @@ func NewCM(serverKey string) CM {
 	return CM{serverKey: serverKey}
 }
 
-func (cm CM) Send(data map[string]string, ids []string) error {
+func (cm CM) Send(data interface{}, ids []string) error {
 
 	c := fcm.NewFcmClient(cm.serverKey)
     c.NewFcmRegIdsMsg(ids, data)
 
 
-	_, err := c.Send()
+	status, err := c.Send()
+
+	fmt.Println(status)
 
 
 	if err != nil {

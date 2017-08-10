@@ -1,3 +1,19 @@
+body {
+    margin-bottom: 30px;
+}
+
+#status {
+    position: fixed;
+    height: 30px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    background-color: #FFF;
+    padding: 5px;
+    color: #666;
+    font-size: 16px;
+}
+
 .navbar-default {
     background-color: #455A64;
     border-color: #455A64;
@@ -13,12 +29,19 @@
     cursor:default;
 }
 
+.navbaricon {
+    width: 46px;
+    height: 46px;
+    margin: 2px;
+    float: left;
+}
+
 .tempcard {
     width: 150px;
-    height:80px;
+    height:70px;
     background-color:#f2f2f2;
     border-radius: 2px;
-    padding-top: 28px;
+    padding-top: 23px;
     font-size: 20px;
     text-align: center;
     box-shadow: 4px 4px 8px 0 rgba(0,0,0,0.2);
@@ -46,7 +69,7 @@
 }
 
 .col-xs-6 {
-    margin-bottom:30px;
+    margin-bottom: 20px;
 }
 
 @media only screen and (max-width: 800px) {

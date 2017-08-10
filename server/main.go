@@ -72,10 +72,10 @@ func setTemps(vals url.Values) error {
 	temps = append(temps, ts)
 	if len(pkeys) > 0 && pcms != nil {
 		fmt.Println("send notification to", pkeys)
-		pcms.Send(map[string]string{
-			"msg": "Hello World1",
-			"sum": "Happy Day",
-		}, pkeys)
+		err = pcms.Send(map[string]string{}, pkeys)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 	return nil
 }
@@ -109,6 +109,20 @@ func removeKey(vals url.Values) error {
 		}
     }
 	return errors.New("key not found")
+}
+
+func checkKey(vals url.Values) (string, error) {
+	key := vals.Get("key")
+	if key == "" {
+		return "", errors.New("no key parameter")
+	}
+	fmt.Println("check Key", key)
+	for _, pkey := range pkeys {
+		if pkey == key {
+			return "on", nil
+		}
+    }
+	return "off", nil
 }
 
 func getTemps() (Temps, error) {
@@ -154,6 +168,15 @@ func apiRemoveKey(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func apiCheckKey(w http.ResponseWriter, r *http.Request) {
+	str, err := checkKey(r.URL.Query())
+	if err != nil {
+		rend.JSON(w, 200, map[string]interface{}{"success": nil, "error": err.Error()})
+	} else {
+		rend.JSON(w, 200, map[string]interface{}{"success": str, "error": nil})
+	}
+}
+
 func main() {
 
 	flag.Parse()
@@ -185,6 +208,7 @@ func main() {
 	http.HandleFunc("/api/SetTemps", apiSetTemps)
 	http.HandleFunc("/api/RegisterKey", apiRegisterKey)
 	http.HandleFunc("/api/RemoveKey", apiRemoveKey)
+	http.HandleFunc("/api/CheckKey", apiCheckKey)
 
 	err = http.ListenAndServe("127.0.0.1:8080", nil)
 	if err != nil {

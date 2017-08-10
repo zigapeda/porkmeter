@@ -6,8 +6,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <link rel="icon" sizes="192x192" href="/icon192.png">
-        <link rel="apple-touch-icon" sizes="192x192" href="/icon192.png">
+        <link rel="icon" sizes="192x192" href="appico.png">
+        <link rel="apple-touch-icon" sizes="192x192" href="appico.png">
         
         <meta http-equiv="Cache-Control" content="no-cache">
         <meta http-equiv="Pragma" content="no-cache">
@@ -22,15 +22,14 @@
         <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
         <script type="text/javascript" src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
-        <script type="text/javascript" src="bratenthermometer.js?v=1.1"></script>
+        <script type="text/javascript" src="bratenthermometer.js?v=1"></script>
     </head>
     <body>
         <nav role="navigation" class="navbar navbar-default">
-            <div class="navbar-header">
-                <a class="navbar-brand">Porkmeter</a>
-                <div class="secondary-btns">
-                    <input id="pushswitch" type="checkbox" data-toggle="toggle" data-on="Push On" data-off="Push Off">
-                </div>
+            <img class="navbaricon" src="appico.png">
+            <a class="navbar-brand">Porkmeter</a>
+            <div class="secondary-btns">
+                <input id="pushswitch" type="checkbox" disabled data-toggle="toggle" data-on="Push On" data-off="Push Off">
             </div>
         </nav>
 
@@ -39,5 +38,7 @@
 
         <div class="section">Fleischtemperatur</div>
         <div id="fleischCards" style="width:95%; margin-left:auto; margin-right:auto"></div>
+
+        <div id="status"></div>
     </body>
 </html>

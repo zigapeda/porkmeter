@@ -1,12 +1,13 @@
 self.addEventListener('push', function(event) {
     console.log('[Service Worker] Push Received.');
-    console.log(`[Service Worker] Push had this data: "${event.data}"`);
+    console.log(`[Service Worker] Push had this data:`);
+    console.log(event);
 
     const title = 'Porkmeter';
     const options = {
         body: 'Temperaturen prüfen!',
-        icon: 'icon192.png',
-        badge: 'images/badge.png'
+        icon: 'appico.png',
+        badge: 'badge.png'
     };
 
     event.waitUntil(self.registration.showNotification(title, options));
