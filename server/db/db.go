@@ -18,17 +18,17 @@ CREATE TABLE thermometer (
 	thermometer_type thermometer_type
 );
 
-CREATE TABLE measurement (
-	id SERIAL PRIMARY KEY,
-	thermometers int REFERENCES thermometer(id),
-	pork_session int REFERENCES pork_session(id),
-	temperature INT,
-    created timestamptz NOT NULL DEFAULT NOW()
-);
-
 CREATE TABLE pork_session (
 	id SERIAL PRIMARY KEY,
 	created timestamptz NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE measurement (
+	id SERIAL PRIMARY KEY,
+	thermometer int REFERENCES thermometer(id),
+	pork_session int REFERENCES pork_session(id),
+	temperature INT,
+    created timestamptz NOT NULL DEFAULT NOW()
 );`
 
 // Dbconfig contains Database login credentials
@@ -92,18 +92,91 @@ func (p *Persistence) Disconnect() {
 }
 
 // CreateNewPorkSession creates a new pork_session database entry and returns its identifier
-func (p *Persistence) CreateNewPorkSession() {
+func (p *Persistence) CreateNewPorkSession() (id int64) {
+	var err error
+	var rows *sqlx.Rows
 
+	rows, err = p.db.Queryx("INSERT INTO pork_session DEFAULT VALUES RETURNING id")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	porkSession := PorkSession{}
+	for rows.Next() {
+		err := rows.StructScan(&porkSession)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		return porkSession.Id
+	}
+
+	return 0
 }
 
 // CreateNewOvenThermometer creates a new oven thermometer
-func (p *Persistence) CreateNewOvenThermometer(thermometerName string) {
+func (p *Persistence) CreateNewOvenThermometer(thermometerName string) (id int64) {
+	var err error
+	var rows *sqlx.Rows
 
+	rows, err = p.db.Queryx("INSERT INTO thermometer (thermometer_name, thermometer_type) VALUES ($1, $2) RETURNING id", thermometerName, "oven")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	thermometer := Thermometer{}
+	for rows.Next() {
+		err := rows.StructScan(&thermometer)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		return thermometer.Id
+	}
+
+	return 0
 }
 
 // CreateNewOvenThermometer creates a new meat thermometer
-func (p *Persistence) CreateNewMeatThermometer(thermometerName string) {
+func (p *Persistence) CreateNewMeatThermometer(thermometerName string) (id int64) {
+	var err error
+	var rows *sqlx.Rows
 
+	rows, err = p.db.Queryx("INSERT INTO thermometer (thermometer_name, thermometer_type) VALUES ($1, $2) RETURNING id", thermometerName, "meat")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	thermometer := Thermometer{}
+	for rows.Next() {
+		err := rows.StructScan(&thermometer)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		return thermometer.Id
+	}
+
+	return 0
+}
+
+// CreateNewMeasurement adds a measurement row to the database
+func (p *Persistence) CreateNewMeasurement(thermometerId int64, porkSessionId int64, temperature int) (id int64) {
+	var err error
+	var rows *sqlx.Rows
+
+	rows, err = p.db.Queryx("INSERT INTO measurement (thermometer, pork_session, temperature) VALUES ($1, $2, $3) RETURNING id", thermometerId, porkSessionId, temperature)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	measurement := Measurement{}
+	for rows.Next() {
+		err := rows.StructScan(&measurement)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		return measurement.Id
+	}
+
+	return 0
 }
 
 // CreateSchema creates necessary database tables & types
