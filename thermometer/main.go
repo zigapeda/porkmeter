@@ -25,12 +25,9 @@ func main() {
 		fmt.Println("read configuration")
 		readConfiguration()
 		go createMenuUI()
-		//measure ui
 	}
 
 	go timeLoop()
-
-	//go readTemps() //make
 
 	<- exit
 }

@@ -4,8 +4,11 @@ import (
 	"github.com/zigapeda/raspui"
 	"fmt"
 	"math"
+	"net/http"
+	"net/url"
 	"time"
 	"sort"
+	"strconv"
 )
 
 var (
@@ -151,36 +154,35 @@ func readResistance(channel int) float64 {
 	adc := readADCValue(channel)
 	un := getNTCVoltage(adc)
 	rn := getNTCResistance(un)
-	fmt.Println(adc, un, rn)
+	fmt.Println(channel, adc, un, rn)
 	return rn
 }
 
 func readTemps() {
-	t25 := 25.0
-	r25 := 1000000.0
-	t100 := 100.0
-	r100 := 47000.0
-	b := getBValue(t25, r25, t100, r100)
 	for {
-		adc := readADCValue(0)
-		un := getNTCVoltage(adc)
-		rn := getNTCResistance(un)
-		t := getTemperature(rn, r25, t25, b)
-		fmt.Println(t)
-		//time.Sleep(1 * time.Second)
-		// readChannel(1)
-		// time.Sleep(1 * time.Second)
-		// readChannel(2)
-		// time.Sleep(1 * time.Second)
-		// readChannel(3)
-		// time.Sleep(1 * time.Second)
-		// readChannel(4)
-		// time.Sleep(1 * time.Second)
-		// readChannel(5)
-		// time.Sleep(1 * time.Second)
-		// readChannel(6)
-		// time.Sleep(1 * time.Second)
-		// readChannel(7)
-		// time.Sleep(1 * time.Second)
+		for i, v := range config.Meters {
+			config.Meters[i].Reading = true
+			r := readResistance(v.Channel)
+			t := int(getTemperature(r, v.R1, config.T1, v.B))
+			config.Meters[i].Temp = t
+			config.Meters[i].Reading = false
+		}
+		go sendTemps()
+	}
+}
+
+func sendTemps() {
+	u, err := url.Parse("https://porkmeter.maplpapl.de/api/SetTemps")
+	if err != nil {
+		fmt.Println(err)
+	}
+	q := u.Query()
+	for _, v := range config.Meters {
+		q.Add(v.PhysID, strconv.Itoa(v.Temp))
+	}
+	u.RawQuery = q.Encode()
+	_, err = http.Get(u.String())
+	if err != nil {
+		fmt.Println(err)
 	}
 }

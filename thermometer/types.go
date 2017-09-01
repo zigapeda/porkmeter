@@ -17,4 +17,6 @@ type Meter struct {
 	R1		float64 `yaml:"r1"`
 	R2		float64	`yaml:"r2"`
 	B		float64 `yaml:"b"`
+	Temp    int     `yaml:"-"`
+	Reading bool	`yaml:"-"`
 }

@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+var txtCh [8]*raspui.Textbox
+
 func initUI() {
 	if _, err := os.Stat("calibration.conf"); err != nil {
 		fmt.Println("start calibration")
@@ -178,13 +180,39 @@ func createMenuUI() {
 	go raspui.Clear()
 	time.Sleep(500 * time.Millisecond)
 
-	raspui.AddElement(raspui.CreateTextbox(10, 20, 300, 20, "Porken!"))
+	txtCh[0] = raspui.CreateTextbox(5, 5, 150, 20, "Kanal 1: N/A")
+	txtCh[1] = raspui.CreateTextbox(5, 30, 150, 20, "Kanal 2: N/A")
+	txtCh[2] = raspui.CreateTextbox(5, 55, 150, 20, "Kanal 3: N/A")
+	txtCh[3] = raspui.CreateTextbox(5, 80, 150, 20, "Kanal 4: N/A")
+	txtCh[4] = raspui.CreateTextbox(5, 105, 150, 20, "Kanal 5: N/A")
+	txtCh[5] = raspui.CreateTextbox(5, 130, 150, 20, "Kanal 6: N/A")
+	txtCh[6] = raspui.CreateTextbox(5, 155, 150, 20, "Kanal 7: N/A")
+	txtCh[7] = raspui.CreateTextbox(5, 180, 150, 20, "Kanal 8: N/A")
+	for i, _ := range txtCh {
+		raspui.AddElement(txtCh[i])
+	}
 	interfaces, err := getInterfaces()
 	if err != nil {
 		log.Println(err)
 	}
 	for i, ife := range interfaces {
 		raspui.AddElement(raspui.CreateTextbox(5, 215 - (i * 25), 310, 20, ife))
+	}
+
+	go displayTemperatures(txtCh)
+	go readTemps()
+}
+
+func displayTemperatures(txtCh [8]*raspui.Textbox) {
+	for {
+		time.Sleep(1 * time.Second)
+		for _, v := range config.Meters {
+			txt := "Kanal " + strconv.Itoa(v.Channel + 1) + ": " + strconv.Itoa(v.Temp) + " °C"
+			if v.Reading == true {
+				txt += " ..."
+			}
+			txtCh[v.Channel].SetText(txt)
+		}
 	}
 }
 
